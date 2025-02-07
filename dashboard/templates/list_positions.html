@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container position_list">
+    <h3>Positions List</h3>
+    <table class="table" style="width:100%">
+        <thead>
+            <tr>
+                <th>Position</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for position in positions %}
+            <tr>
+                <td>{{ position.position }}</td>  
+                <form action="{% url 'delete_position' position.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <td><button class="btn btn-danger btn-sm" type="submit">Delete</button></td>
+                </form>
+            </tr>
+        {% empty %}
+            <li>No positions available.</li>
+        {% endfor %}
+        </tbody>
+    </table>
+    <a class="btn btn-primary" href="{% url 'add_position' %}">Add New Position</a>
+</div>
+{% endblock %}

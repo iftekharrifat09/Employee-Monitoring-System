@@ -1,0 +1,16 @@
+{% extends 'base.html' %} {% load crispy_forms_tags %} {% block content %}
+<h2 class="text-center mt-3 mb-4"><i class="fa-solid fa-user-pen mx-2"></i>Update Employee</h2>
+<form class="edit_employee" method="post">
+  {% csrf_token %}
+  <h4>User Details</h4>
+  {{ user_form|crispy }}
+  {% if type != 'for_employee'%}
+    <hr class="mt-4 mb-4">
+    <h4>Employee Details</h4>
+    {{ employee_form|crispy }}
+  {% endif %}
+  <button class="btn btn-warning" type="submit">Update</button>
+  <a class="btn btn-primary" href="{% url 'dashboard' %}">Back</a>
+</form>
+
+{% endblock %}

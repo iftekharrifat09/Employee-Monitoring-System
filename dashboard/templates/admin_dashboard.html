@@ -1,0 +1,437 @@
+{% extends 'base.html' %} 
+{% load crispy_forms_tags %} 
+{% block content %}
+<style>
+    .occasional-holiday-modal, .allowed-emails-modal{
+         max-height: 550px;
+         overflow-x: hidden;
+         overflow-y: auto;
+    }
+    .occasional-holiday-modal:hover::-webkit-scrollbar-thumb {
+        opacity: 1; /* Fully visible on hover */
+        visibility: visible;
+    }
+    .allowed-emails-modal:hover::-webkit-scrollbar-thumb {
+        opacity: 1; /* Fully visible on hover */
+        visibility: visible;
+    }
+    .allowed-emails h4, .occasional-holidays h4, .set-holidays h4, .default-holiday h4{
+        margin-bottom: 20px;
+    } 
+    #typingText{
+        margin-top: 7px;
+        color: red;
+        margin-left: 10px;
+        white-space: nowrap;
+        overflow: hidden;
+        display: inline-block;
+        border-right: 3px solid red; /* Blinking cursor effect */
+        font-size: 24px;
+    }
+
+    @keyframes blink {
+        50% { border-color: transparent; }
+    }
+
+    .cursor {
+        display: inline-block;
+        width: 5px;
+        height: 20px;
+        background-color: red;
+        margin-left: 2px;
+        animation: blink 0.7s infinite;
+    }
+    .resetAttendanceForm{
+        
+    }
+    .rest_attendance{
+        position: relative;
+        display: inline-block;
+    }
+    .rest_attendance:hover::after {
+        position: absolute;
+        background-color: black;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 12px;
+        top: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        white-space: nowrap;
+        visibility: visible;
+        opacity: 1;
+        transition: opacity 0.3s;
+    }
+    .rest_attendance::after {
+        visibility: hidden;
+        opacity: 0;
+    }
+    .rest_attendance:hover::after {
+        content: "Restart Attendance for New Month!";
+    }
+    .header_content{
+        text-align: center;
+        margin-top:30px;
+    }
+    #confirmationBox{
+        text-align: center;
+    }
+</style>
+<div class="header_content">
+    <h1 class="text-center mt-5" style="display:inline;"><i class="fa-solid fa-user-tie mx-4"></i>Admin Dashboard</h1>
+    <button style="margin-left: 10px; border-radius:50%; margin-bottom:20px !important;" href="" type="button" class="btn btn-danger mt-1 mb-2 rest_attendance" data-bs-toggle="modal" data-bs-target="#resetAttendanceModal">
+        <i class="fa-solid fa-rotate-right"></i>
+    </button>
+</div>
+<div class="full-div row">
+    <div class="col-3 admin-work">
+        <div style="display:flex;justify-content:space-between;">
+            <a href="{% url 'admin_edit'%}" class="btn btn-warning mb-2" style="width:49%;background-color:#ff9a03;border:none; font-weight:bold;color:white;"><i class="fa-solid fa-user-pen mx-2"></i></i>Edit My Profile</a>
+            <a href="{% url 'change_password'%}" class="btn btn-warning mb-2" style="width:49%;background-color:#e90000;border:none; font-weight:bold;color:white;"><i class="fa-solid fa-unlock-keyhole mx-2"></i>Change Password</a>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+            <a href="{% url 'add_sector'%}" class="btn btn-warning mb-2" style="width:49%;background-color:tomato;border:none; font-weight:bold;color:white;"><i class="fa-solid fa-plus mx-2"></i>Add Sector</a>
+            <a href="{% url 'add_position'%}" class="btn btn-warning mb-2" style="width:49%;background-color:goldenrod;border:none; font-weight:bold;color:white;"><i class="fa-solid fa-plus mx-2"></i>Add Position</a>
+        </div>
+        <a href="{% url 'admin_messages' %}" class="btn btn-primary mb-2" style="width:100%;background-color:tomato;border:none; font-weight:bold;"><i class="fa-solid fa-comments mx-2"></i>All User Messages</a>
+        <a href="{% url 'view_all_tasks' %}" class="btn btn-primary mb-4" style="width:100%;background-color:goldenrod;border:none; font-weight:bold;"><i class="fa-solid fa-spell-check mx-2"></i>View Remaining Tasks</a>
+        <div class="set_time" style="background-color:#ededed;">
+            <h4><i class="fa-solid fa-clock mx-3"></i>Set Working Time</h4>
+            <form method="post">
+                {% csrf_token %}
+                {{ attendance_time_form|crispy }}
+                <button type="submit" name="set_attendance_time" class="btn btn-warning">Save Changes</button>
+            </form>
+        </div>
+        <div class="allowed-emails" style="background-color: #fdd1d1;">
+            <h4><i class="fa-solid fa-person-circle-check mx-3"></i>Allowed Emails</h4>
+            <button href="" type="button" class="btn btn-primary ms-0 mt-2 mx-2" data-bs-toggle="modal" data-bs-target="#addowed-emailModal">
+                Allowed Emails
+            </button>
+            <a class="btn btn-warning mt-2" href="/add_allowed_email/">Add Allowed Email</a>
+        </div>
+        <div class="occasional-holidays" style="background-color: #c2ddf5;">
+            <h4><i class="fa-solid fa-cookie-bite mx-3"></i>Add Occasional Holidays</h4>
+            <form method="post">
+                {% csrf_token %}
+                {{ occasional_holidays_form|crispy}}
+                <button href="" type="button" class="btn btn-primary mx-2" data-bs-toggle="modal" data-bs-target="#occasional-holidayModal">
+                    See Holidays
+                </button>
+                <button type="submit" name="occasional_holidays" class="btn btn-warning">Add Holiday</button>
+            </form>
+        </div>
+        <div class="set-holidays" style="background-color: #c1cdf7;">
+            <h4><i class="fa-solid fa-champagne-glasses mx-3"></i>Add Individual Holidays</h4>
+            <form class="select-employee" method="post" action="{% url 'dashboard' %}">
+                {% csrf_token %}
+                {{ multi_date_form|crispy}}
+                <button type="submit" name="employee_holiday" class="btn btn-primary">Add Holidays</button>
+                
+            </form>
+        </div>
+    <!-- Modal for allowed emails -->
+    <div class="modal fade" id="addowed-emailModal" tabindex="-1" aria-labelledby="addowed-emailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="addowed-emailModalLabel">All the Allowed Emails</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body allowed-emails-modal">
+                    {% if emails %}   
+                    <table class="table table-striped" style="width: 465px;">
+                        <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for email in emails %}
+                        <tr>
+                                <td>{{ email.email}}</td>
+                                <td>
+                                    <form
+                                    method="POST"
+                                    action="{% url 'delete_allowed_email' email.id %}"
+                                    >
+                                    {% csrf_token %}
+                                    <button class="btn btn-danger" type="submit">Remove</button>
+                                    </form>
+                                </td>
+                                
+                            </tr>
+                            {% endfor %}
+                        
+                        </tbody>
+                    </table>  
+                    {% else %}
+                            <p style="color:tomato; font-weight:bold;text-align:center;font-size:20px;">No emails exist.</p>
+                    {% endif %} 
+                                                
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal for occasional holidays -->
+    <div class="modal fade" id="occasional-holidayModal" tabindex="-1" aria-labelledby="occasional-holiday-ModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="occasional-holiday-ModalLabel">All Occasional Holidays</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body occasional-holiday-modal" >
+                    {% if occasional_holi_days %}    
+                    <table class="table table-striped" style="width: 465px;">
+                        <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for holiday in occasional_holi_days %}
+                        <tr>
+                                <td>{{ holiday}}</td>
+                                <td>
+                                    <form
+                                    method="POST"
+                                    action="{% url 'delete_occasional_holiday' holiday %}"
+                                    >
+                                    {% csrf_token %}
+                                    <button class="btn btn-danger" type="submit">Remove</button>
+                                    </form>
+                                </td>
+                                
+                            </tr>
+                            {% endfor %}
+                        
+                        </tbody>
+                    </table>   
+                    {% else %}
+                            <p style="color:tomato; font-weight:bold;text-align:center;font-size:20px;">No Holiday Exist.</p>
+                    {% endif %}                             
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div class="default-holiday" style="background-color: #e1d2f7;">
+            <h4><i class="fa-solid fa-mug-hot mx-3"></i>Default Holiday</h4>
+            <form method="post" action="/set_default_holiday/">
+                {% csrf_token %}
+                <label for="day">Set Default Holiday:</label>
+                <select class="days" name="day" id="day">
+                    <option value="monday" {% if default_holiday == "monday" %}selected{% endif %}>Monday</option>
+                    <option value="tuesday" {% if default_holiday == "tuesday" %}selected{% endif %}>Tuesday</option>
+                    <option value="wednesday" {% if default_holiday == "wednesday" %}selected{% endif %}>Wednesday</option>
+                    <option value="thursday" {% if default_holiday == "thursday" %}selected{% endif %}>Thursday</option>
+                    <option value="friday" {% if default_holiday == "friday" %}selected{% endif %}>Friday</option>
+                    <option value="saturday" {% if default_holiday == "saturday" %}selected{% endif %}>Saturday</option>
+                    <option value="sunday" {% if default_holiday == "sunday" %}selected{% endif %}>Sunday</option>
+                </select>
+                <button type="submit" class="btn btn-primary mt-2">Set Holiday</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-9">
+        <div style="display:flex;">
+            <h3 style="margin-left: 5px;margin-right: 20px;"><i class="fa-solid fa-border-all mx-2"></i>Employee List</h3>
+            <a href="{%url 'attendance_summary'%}" class="btn" style="background-color: #d33f83;
+            color: white;padding-top: 8px;font-weight: bold;"><i class="fa-solid fa-chart-column" style="margin-right:8px;"></i>View all Employee Status</a>
+            <a href="{%url 'task_history'%}" class="btn" style="margin-left:8px;background-color: #0dcaf0;
+            color: white;padding-top: 8px;font-weight: bold;"><i class="fa-solid fa-book-medical" style="margin-right:8px;"></i>Task History</a>
+            <a href="{%url 'view_all_month_summaries'%}" class="btn" style="margin-left:8px;background-color: #0ad966;
+            color: white;padding-top: 8px;font-weight: bold;"><i class="fa-regular fa-rectangle-list" style="margin-right:8px;"></i>Month Summary</a>
+            <h3 id="typingText">
+                <i class="fa-solid fa-skull-crossbones mx-2"></i> 
+                <span id="text"></span><span class="cursor"></span>
+            </h3>
+        </div>
+    <div class="employee-display mt-4">
+        <div class="filtering_section" style="width:100%;display:inline;">
+            <form method="GET" style="display:flex;justify-content:left; align-items:center;" class="mx-3">
+                <label style="cursor:pointer;font-size:18px;background-color:#ededed;padding:0px 8px;border-radius:8px;">
+                    <input style="font-size:18px;" type="radio" name="filter_type" value="all" id="filter_all" {% if not selected_sector and not selected_position %}checked{% endif %}>
+                    All Employees
+                </label>
+        
+                <label style="cursor:pointer;margin-left:15px;font-size:18px;background-color:#ededed;padding:0px 8px;border-radius:8px;">
+                    <input type="radio" name="filter_type" value="filter" id="filter_enable" {% if selected_sector or selected_position %}checked{% endif %}>
+                    Filter
+                </label>
+                    <div id="filter_box">
+                        <label style="margin-left:20px;font-weight:bold;" for="sector">Sector:</label>
+                        <select name="sector" id="sector" {% if not selected_sector and not selected_position %}disabled{% endif %}>
+                            <option value="">All Sectors</option>
+                            {% for sector in sectors %}
+                                <option value="{{ sector.id }}" {% if sector.id|stringformat:"s" == selected_sector %}selected{% endif %}>
+                                    {{ sector.sector }}
+                                </option>
+                            {% endfor %}
+                        </select>
+        
+                        <label style="margin-left:10px;font-weight:bold;" for="position">Position:</label>
+                        <select name="position" id="position" {% if not selected_sector and not selected_position %}disabled{% endif %}>
+                            <option value="">All Positions</option>
+                            {% for position in positions %}
+                                <option value="{{ position.id }}" {% if position.id|stringformat:"s" == selected_position %}selected{% endif %}>
+                                    {{ position.position }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                <button type="submit" class="btn btn-sm mx-3" style="background-color:purple;color:white;">Apply</button>
+                {% if filtered_employees|length == 0 %}
+                    <h5 class="mx-4" style="color:red;margin-bottom:0px;">No Result Found</h5>
+                {% else %}
+                    <h5 class="mx-4" style="color:green;margin-bottom:0px;">{{filtered_employees | length}} Result Found</h5>
+                {% endif %}
+            </form>
+        </div>
+        {% for employee in filtered_employees %}
+        <div class="employee-card" style="background-color: #fff;">
+            
+                <strong><i class="fa-solid fa-user " style="margin-right:5px;"></i>{{employee.id}}. Username: {{ employee.user.username }}</strong><br>
+                Full Name: {{ employee.user.get_full_name|truncatechars:25 }}<br>
+                Email: {{ employee.user.email|truncatechars:22 }}<br>
+                Sector: {{ employee.sector }}<br>
+                Position: {{ employee.position }}<br>
+                <a class="btn btn-primary mt-2 mb-2 edit" href="/update_employee/{{ employee.id }}/">Edit<i class="fa-regular fa-pen-to-square" style="margin-left:5px;"></i></a>  |
+                <a class="btn btn-success m-1" href="/employee_details/{{ employee.id }}/">View Details<i class="fa-regular fa-eye" style="margin-left:5px;"></i></a><br>
+                <button style="margin-right: 3px;" href="" type="button" class="btn btn-danger mt-1 mb-2" data-bs-toggle="modal" data-bs-target="#delete-confirmation-{{ employee.id }}">
+                    Delete<i class="fa-solid fa-trash" style="margin-left:5px;"></i>
+                </button> |
+                <a class="btn btn-warning m-1 mb-2" href="/admin_set_password/{{ employee.user.id }}/">Set Password<i class="fa-solid fa-gear" style="margin-left:5px;"></i></a> 
+                
+                <!-- delete confirmation modal -->
+                <div class="modal fade" id="delete-confirmation-{{ employee.id }}" tabindex="-1" aria-labelledby="deleteModalLabel-{{ employee.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3 class="modal-title" id="deleteModalLabel-{{ employee.id }}">Delete confirmation</h3>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                    
+                                    <h5 class="text-center" style="color:red;">Are you sure! You want to delete all data for {{ employee.user.username }}?</h5>
+                                                            
+                            </div>
+                            <div class="modal-footer">
+                                <a class="btn btn-danger mt-2 mb-2 delete " href="/delete_employee/{{ employee.id }}/">Confirm</a>
+                                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- attendance reset confirmation modal -->
+                <div class="modal fade" id="resetAttendanceModal" tabindex="-1" aria-labelledby="resetAttendanceModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3 class="modal-title" id="resetAttendanceModalLabel">Restart Attendance</h3>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                    
+                                <form id="resetAttendanceForm" method="post" action="{% url 'reset_attendance' %}">
+                                    {% csrf_token %}
+                                    
+                                    <button type="button" class="btn" style="background-color:red;font-weight:bold;color:white;margin-left:35%;" id="showInputBtn">Restart Attendance</button>
+                                    
+                                    <div id="confirmationBox" style="display: none;">
+                                        <label for="confirmInput" style="color:goldenrod; font-size:20px;">Type <strong>'<span style="color:red;">Sure</span>'</strong> to confirm:</label><br>
+                                        <input type="text" id="confirmInput" style="width: 90%;margin-top: 10px;margin-bottom: 10px;height: 40px;border-radius: 10px;"><br>
+                                        <button class="btn mb-3" style="background-color:red;font-weight:bold;color:white;width:90%;" type="submit" id="submitBtn" disabled>Confirm Restart</button>
+                                    </div>
+                                </form>
+                                                            
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+        </div>
+        {% endfor %}
+    </div>
+
+
+    
+</div>
+
+<script>
+    const textElement = document.getElementById("text");
+    const cursor = document.querySelector(".cursor");
+    const fullText = "Must Sleep 8 Hours at Night";
+    let index = 0;
+
+    function typeEffect() {
+        textElement.innerHTML = ""; // Clear previous text
+        index = 0;
+        cursor.style.display = "inline-block"; // Show cursor
+        
+        let typing = setInterval(() => {
+            if (index < fullText.length) {
+                textElement.innerHTML += fullText[index];
+                index++;
+            } else {
+                clearInterval(typing);
+                setTimeout(() => {
+                    textElement.innerHTML = ""; // Clear text after delay
+                    cursor.style.display = "none"; // Hide cursor
+                }, 2000);
+            }
+        }, 100);
+    }
+
+    typeEffect(); // Run initially
+    setInterval(typeEffect, 10000); // Repeat every 10 seconds
+</script>
+<script>
+    document.getElementById("showInputBtn").addEventListener("click", function() {
+        document.getElementById("confirmationBox").style.display = "block";
+        document.getElementById("showInputBtn").style.display = "none";
+    });
+
+    document.getElementById("confirmInput").addEventListener("input", function() {
+        let submitBtn = document.getElementById("submitBtn");
+        submitBtn.disabled = this.value !== "Sure";
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const filterAll = document.getElementById("filter_all");
+        const filterEnable = document.getElementById("filter_enable");
+        const sectorDropdown = document.getElementById("sector");
+        const positionDropdown = document.getElementById("position");
+        const filterBox = document.getElementById("filter_box");
+
+        function toggleFilters() {
+            if (filterEnable.checked) {
+                filterBox.style.display = "block";
+                const isFiltering = filterEnable.checked;
+                sectorDropdown.disabled = !isFiltering;
+                positionDropdown.disabled = !isFiltering;
+            } else {
+                filterBox.style.display = "none";
+                const isFiltering = filterEnable.unchecked;
+            }
+        }
+
+        filterAll.addEventListener("change", toggleFilters);
+        filterEnable.addEventListener("change", toggleFilters);
+        toggleFilters(); // Initialize on page load
+    });
+</script>
+{% endblock %}

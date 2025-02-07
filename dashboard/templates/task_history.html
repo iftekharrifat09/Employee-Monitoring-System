@@ -1,0 +1,125 @@
+{% extends 'base.html' %} {% block content %}
+<div style="width: 95%; margin: auto">
+  <div
+    class="msg-header"
+    style="text-align: center; margin-bottom: 40px; margin-top: 20px"
+  >
+    <h2>Task History</h2>
+    <a class="btn btn-success mt-3" href="{% url 'dashboard' %}"
+      >Back to Dashboard</a
+    >
+    <a
+      href="{% url 'export_task_history' %}"
+      class="btn mt-3 mx-3"
+      style="background-color: tomato; color: white"
+      >Download<i class="fa-solid fa-file-arrow-down mx-2"></i
+    ></a>
+  </div>
+  {% if task_history %}
+  <table class="table table-hover" style="width: 95%; margin: auto">
+    <thead>
+      <tr style="background-color: black; color: white">
+        <th>Task ID</th>
+        <th>Task Title</th>
+        <th>Assigned To</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>Revisions</th>
+        <th>Rejections</th>
+        <th>Status</th>
+        <th>Action Taken</th>
+        <th>Action Date</th>
+        <th>Take Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for task in task_history %}
+      <tr
+        style="
+                    {% if task.status == 'Completed' %} background-color:rgba(0, 255, 51, .5);
+                    {% elif task.status == 'Date Over' %} background-color: rgba(254, 0, 0, .5);
+                    {% elif task.status == 'In Process' %} background-color: rgba(13, 0, 255, .5);
+                    {% elif task.status == 'Pending Approval' %} background-color: rgba(255, 255, 0, 0.5);
+                    {% else %} background-color: rgba(255, 115, 0, .5);
+                    {% endif %}
+                    font-size:18px;
+                "
+      >
+        <td><strong>{{ task.task_id }}</strong></td>
+        <td>{{ task.task_title|truncatechars:30 }}</td>
+        <td>{{ task.assigned_to }}</td>
+        <td>{{ task.start_date }}</td>
+        <td>{{ task.end_date }}</td>
+        <td>{{ task.revision_count }}</td>
+        <td>{{ task.rejected_count }}</td>
+        <td>{{ task.status }}</td>
+        <td>{{ task.action_taken }}</td>
+        <td>{{ task.action_date|date:"Y-m-d H:i" }}</td>
+        <td>
+          <button
+            type="button"
+            class="btn btn-danger btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#delete-confirmation-{{ task.task_id }}"
+            style="box-shadow: 3px 3px 10px rgba(255, 255, 255, 0.6)"
+          >
+            Delete
+          </button>
+          <!-- delete confirmation modal -->
+          <div
+            class="modal fade"
+            id="delete-confirmation-{{ task.task_id }}"
+            tabindex="-1"
+            aria-labelledby="deleteModalLabel-{{ task.task_id }}"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h3
+                    class="modal-title"
+                    id="deleteModalLabel-{{ task.task_id }}"
+                  >
+                    Delete confirmation
+                  </h3>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div class="modal-body">
+                  <h5 class="text-center" style="color: red">
+                    Are you sure? You want to delete this Task History!
+                  </h5>
+                </div>
+                <div class="modal-footer">
+                  <a
+                    href="{% url 'delete_task_history' task.id %}"
+                    class="btn btn-danger"
+                    >Confirm</a
+                  >
+                  <button
+                    type="button"
+                    class="btn btn-success"
+                    data-bs-dismiss="modal"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="text-center" style="margin-top: 20px">
+    <h4 style="color:tomato">No Task Deleted Yet</h4>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

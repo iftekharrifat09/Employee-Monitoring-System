@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .message-box{
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.2);
+        overflow-x: hidden;
+        overflow-y: auto;
+ 
+    }
+    .table{
+        width: 100%;
+    }
+    .message-box h2{
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    .message-box:hover::-webkit-scrollbar-thumb {
+        opacity: 1; /* Fully visible on hover */
+        visibility: visible;
+    }
+    .msg-header{
+        text-align: center;
+        margin-bottom: 30px;
+    }
+</style>
+<div class="container message-box mt-5">
+    <div class="msg-header">
+        <h2>Admin Message Dashboard</h2>
+        <a class="btn btn-success mt-2" href="{% url 'dashboard' %}" >Back to Dashboard</a>
+    </div>
+    {% if user_messages %}
+    <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Sender</th>
+            <th scope="col">Message Preview</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for msg in user_messages %}
+          <tr>
+            <td>{{ msg.name }}</td>
+            <td>{{ msg.message|truncatechars:20 }}</td>
+            <td>
+                <button style="margin-right: 3px;" href="" type="button" class="btn btn-primary mt-1 mb-2" data-bs-toggle="modal" data-bs-target="#view-modal-{{ msg.id }}">
+                    View
+                </button>
+                <button style="margin-right: 3px;" href="" type="button" class="btn btn-danger mt-1 mb-2" data-bs-toggle="modal" data-bs-target="#delete-confirmation-{{ msg.id }}">
+                    Delete
+                </button>
+                <!-- modal for delete -->
+                <div class="modal fade" id="delete-confirmation-{{ msg.id }}" tabindex="-1" aria-labelledby="deleteModalLabel-{{ msg.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3 class="modal-title" id="deleteModalLabel-{{ msg.id }}">Delete confirmation</h3>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                    
+                                    <h5 class="text-center" style="color:red;">Are you sure? You want to delete this message!</h5>
+                                                            
+                            </div>
+                            <div class="modal-footer">
+                                <a href="{% url 'delete_message' msg.id %}" class="btn btn-danger mt-2 mb-2" >Confirm</a>
+                                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- modal for view -->
+                <div class="modal fade" id="view-modal-{{ msg.id }}" tabindex="-1" aria-labelledby="viewModalLabel-{{ msg.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3 class="modal-title" id="viewModalLabel-{{ msg.id }}">Delete confirmation</h3>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                    
+                                <p><strong>Username: </strong>{{msg.name}}</p>
+                                <p><strong>Email: </strong>{{msg.email}}</p>
+                                <p><strong>Message: </strong></p>
+                                <p>{{msg.message}}</p>
+                
+                                                            
+                            </div>
+                            <div class="modal-footer">
+                                <button style="margin-right: 3px;" href="" type="button" class="btn btn-danger mt-1 mb-2" data-bs-toggle="modal" data-bs-target="#delete-confirmation-{{ msg.id }}">
+                                    Delete
+                                </button>
+                                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+            <p style="color:tomato; font-weight:bold;text-align:center;font-size:20px;">No message available.</p>
+        {% endif %} 
+</div>
+
+{% endblock %}

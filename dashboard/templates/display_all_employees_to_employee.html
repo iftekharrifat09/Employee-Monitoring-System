@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div>
+        <h2 style="text-align:center;margin-top:50px;margin-bottom:30px;">All the Remaining Employee List</h2>
+        <table class="table table-striped" style="width:70%; margin:auto;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Sector</th>
+                    <th>Position</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in employees %}
+                    <tr>
+                        <td>{{ employee.user.id }}</td>
+                        <td>{{ employee.user.get_full_name }}</td>
+                        <td>{{ employee.user.email }}</td>
+                        <td>{{ employee.sector }}</td>
+                        <td>{{ employee.position }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+    

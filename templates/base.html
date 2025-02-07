@@ -1,0 +1,397 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Employee Monitoring</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+      body{
+        background-color: #f9f9f9;
+      }
+      .rounded{
+        width: 20px;
+      }
+      .full-div{
+        width: 90%;
+        margin: auto;
+        margin-top: 50px;
+      }
+      .set-holidays, .allowed-emails, .default-holiday, .occasional-holidays, .set_time{
+        margin-bottom: 20px;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 4px 4px 15px rgba(0,0,0,0.15)
+      }
+      .days{
+        width: 100%;
+        height: 40px;
+        margin-top:10px;
+        border-radius: 6px;
+        border: 1px solid #dbd0d0;
+      }
+      .employee-card{
+        height: 255px;
+        width: 300px;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 4px 4px 15px rgba(0,0,0,0.1)
+      }
+      .employee-display{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+      .edit, .delete{
+        margin-right: 5px;
+      }
+      .add-email, .edit_employee, .change-pass, .login, .register, .contact, .edit-task, .extend-task, .edit_admin, .add_position, .add_sector, .position_list, .sector_list{
+        width: 450px;
+        margin: auto;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 30px;
+        background-color: aliceblue;
+        box-shadow: 4px 4px 15px rgba(0,0,0,0.1)
+        
+      }
+      .circle-charts {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+    .all-circle-container, .all-circle-container_admin{
+        height: 320px;
+        width: 500px;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 4px 4px 15px rgba(0,0,0,0.1)
+    }
+    .all-circle-container_admin{
+        width: 720px;
+    }
+
+    .circle-chart-container {
+        text-align: center;
+    }
+
+    .circle-chart {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        margin: 0 auto;
+    }
+
+    .circle-chart-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 75px;
+        height: 75px;
+        border-radius: 50%;
+        background-color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .circle-label {
+        margin-top: 10px;
+        font-size: 14px;
+        font-weight: bold;
+        color: #555;
+    }
+    .attendance-table-container{
+        height: 420px;
+        width: 500px;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 4px 4px 15px rgba(0,0,0,0.1)
+
+    }
+    .attendance-full-summary{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+    }
+    .table {
+        width: 500px;
+        border-collapse: separate; 
+        border-spacing: 0; 
+        border-radius: 10px;
+        border: 1px solid #ccc;
+    }
+    li::marker{
+        font-weight: bold;
+    }
+    .default-holiday-card, .attendance-record-card, .employee_extra-holiday {
+        width: 280px;
+        height: 200px;
+        padding: 20px;
+        border-radius: 10px;
+        overflow: auto;
+        overflow-x: hidden;
+        scroll-behavior: smooth;
+        margin-bottom: 20px;
+        box-shadow: 4px 4px 15px rgba(0,0,0,0.1)
+    }
+    .default-holiday-card h4, .attendance-record-card h4{
+        margin-bottom: 20px;
+    }
+    .extra-holiday{
+        margin-top: 20px;
+        width: 500px;
+        height: 365px;
+        overflow: auto;
+        overflow-x: hidden;
+        scroll-behavior: smooth;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 4px 4px 15px rgba(0,0,0,0.15)
+    }
+    .full-body{
+        padding: 20px;
+        margin: auto;
+    }
+
+    ::-webkit-scrollbar {
+        width: 8px; /* Width of the scrollbar */
+        height: 2px; /* Height of the horizontal scrollbar */
+      }
+      
+      ::-webkit-scrollbar-track {
+        background:none; /* Background of the scrollbar track */
+        border-radius: 10px; /* Optional rounded corners */
+      }
+      
+      ::-webkit-scrollbar-thumb {
+        background: #888; /* Color of the scrollbar thumb */
+        border-radius: 10px; /* Optional rounded corners */
+        opacity: 0; /* Initially hidden */
+        visibility: hidden; /* Prevent interactions */
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    
+    .attendance-record-card:hover::-webkit-scrollbar-thumb {
+        opacity: 1; /* Fully visible on hover */
+        visibility: visible;
+    }
+    .default-holiday-card:hover::-webkit-scrollbar-thumb {
+        opacity: 1; /* Fully visible on hover */
+        visibility: visible;
+    }
+    .extra-holiday:hover::-webkit-scrollbar-thumb {
+        opacity: 1; /* Fully visible on hover */
+        visibility: visible;
+    }
+      
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555; /* Darker thumb on hover */
+      }
+    .about-me-attend, .holiday-attend{
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    .details-board{
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 40px;
+    }
+    .navbar{
+      width: 90%;
+      margin: auto;
+      border-radius: 15px;
+      padding-left: 30px;
+      padding-right: 30px;
+      background-color:rgb(228, 228, 228);
+    }
+    .nav_contact{
+      margin-left: 10px !important;
+    }
+    .nav_contact:hover{
+      color:tomato !important;
+      
+    }
+    .logo{
+      filter: drop-shadow(6px 6px 10px black);
+    }
+    .material-icons {
+      cursor: pointer !important; /* Apply cursor pointer on the icon */
+    }
+    
+
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg ">
+      <div class="container-fluid">
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            {% if request.user.is_authenticated%}
+            <li class="nav-item">
+              <a href="{% url 'home' %}">
+                <img class="logo" src="{% static 'Emporia_red.png' %}" style="height:50px;">
+              </a>
+            </li>
+            {% else %}
+            <div style="display:flex;justify-content:center; align-items:center;">
+            <li class="nav-item">
+              <a href="{% url 'home' %}">
+                <img class="logo" src="{% static 'EmporiaLogo.png' %}" style="height:50px;">
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link nav_contact" style="font-weight:bold; color:black;" href="{% url 'contact' %}">Contact</a>
+            </li>
+          </div>
+            {% endif %}
+             
+          </ul>
+          <div class="d-flex">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              {% if request.user.is_authenticated%}
+              <li class="nav-item">
+                <a class="nav-link nav_dashboard btn btn-success mx-2 text-white" href="{% url 'dashboard'%}">Dashboard</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link btn btn-danger mx-2 text-white" href="{% url 'logout' %}">Log Out</a>
+              </li>
+              {% else %}
+              <li class="nav-item">
+                <a
+                  class="nav-link btn btn-success mx-2 text-white"
+                  href="{% url 'register' %}"
+                  >Register</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link btn btn-primary mx-2 text-white"
+                  href="{% url 'login' %}"
+                  >Login</a
+                >
+              </li>
+              {% endif %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    {% if messages %} {% for msg in messages %}
+
+    <div aria-live="polite" aria-atomic="true" class="position-relative">
+      <div class="toast-container top-0 end-0 p-3">
+        <div
+          class="toast"
+          style="background-color: rgba(237, 246, 248, 0.9)"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+        >
+          <div class="toast-header">
+            {% if msg.tags == 'success' %}
+            <img
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpBrFpH2FpYiRsG2DZ1FmeOOHaeixp8tTnfA&s"
+              class="rounded me-2"
+              alt="img"
+            />
+            {% elif msg.tags == 'error' %}
+            <img
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnSu2QXMDKpD5xXDZZuoYy1UG0tUdV5_oWVA&s"
+              class="rounded me-2"
+              alt="img"
+            />
+
+            {% endif %}
+
+            <strong class="me-auto">Alert!</strong>
+            <small class="text-muted">just now</small>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="toast"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="toast-body">
+            <h6 {% if msg.tags %} class="text-{% if msg.tags == 'error' %}danger{% endif %}" {%endif%}>
+              {{msg}}
+            </h6>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %} {% endif %} {% block content %} {% endblock %}
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      //js for toast activation
+      document.addEventListener("DOMContentLoaded", function () {
+        var toastElList = [].slice.call(document.querySelectorAll(".toast"));
+        var toastList = toastElList.map(function (toastEl) {
+          return new bootstrap.Toast(toastEl);
+        });
+        toastList.forEach((toast) => toast.show());
+        
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const today = new Date();
+            const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    
+            flatpickr('.multi-date-picker', {
+                mode: 'multiple', // Enable multiple date selection
+                dateFormat: 'Y-m-d', // Format for the database
+                minDate: firstDayOfMonth, // Start of the current month
+                maxDate: lastDayOfMonth, // End of the current month
+                defaultDate: today, // Highlight today's date
+                disableMobile: true, // Ensure full Flatpickr UI loads on mobile
+            });
+        });
+    </script>
+    <script>
+      flatpickr("#timePicker", {
+          enableTime: true,
+          noCalendar: true,
+          dateFormat: "h:i K", // 12-hour format with AM/PM
+          time_24hr: false // Set to true if you need 24-hour format
+      });
+    </script>
+
+  </body>
+</html>

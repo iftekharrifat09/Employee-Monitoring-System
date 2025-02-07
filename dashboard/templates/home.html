@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .banner-with-image, .image-left-text, .image-right-text, footer{
+        width: 70%;
+        margin: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 50px;
+        margin-top: 50px;
+    }
+    .left-side{
+        width: 50%;
+        padding: 20px;
+    }
+    .left-side p,.left-side li, .para{
+        font-size: 19px;
+        line-height: 25px;
+        margin-bottom: 20px;
+    }
+    .image-left-text, .image-right-text{
+        margin-top: 150px;
+    }
+    .svg_image{
+        width: 80%;
+    }
+    ::-webkit-scrollbar-thumb {
+        opacity: 1; /* Fully visible on hover */
+        visibility: visible;
+    }
+    footer{
+        margin-bottom: 100px;
+        width: 90%;
+    }
+    .text-logo{
+        width: 30%;
+        margin: auto;
+        text-align: center;
+    }
+    .text-button{
+        width: 70%;
+        margin: auto;
+        text-align: center;
+    }
+    .footer-logo{
+        filter: drop-shadow(6px 6px 10px black);
+    }
+</style>
+<div class="home_page_data">
+    <header>
+        <section class="banner-with-image">
+            <div class="left-side">
+                <h1><span style="color:tomato">Emporia<i class="fas fa-users mx-4"></i></span><br> Streamline, Optimize & Elevate Your Workforce 🚀</h1>
+                <p>Emporia is a powerful application designed to streamline workforce operations, optimize productivity, and simplify employee tracking. From attendance to task management, it ensures efficiency and smooth collaboration in any organization.</p>
+            </div>
+            <div class="right-side">
+                <img src="{% static 'banner.png' %}"/>
+            </div>
+        </section>
+    </header>
+    <body>
+        <section class="image-with-text">
+            <div class="image-left-text">
+                <div class="right-side">
+                    <img class="svg_image" src="{% static 'tracking.svg' %}"/>
+                </div>
+                <div class="left-side">
+                    <h1><span style="color:tomato">About<i class="fa-solid fa-circle-info mx-4"></i></span></h1>
+                    <p>This System streamlines attendance tracking, task assignments, and performance summaries. It records workdays, holidays, and task approvals while maintaining a monthly summary for each employee. The system ensures data integrity by preserving task records even after deletion, and it allows easy data export to Excel for reporting and analysis.</p>
+                </div>
+            </div>
+            <div class="image-right-text">
+                <div class="left-side">
+                    <h1><span style="color:tomato">Why Choose Us?<i class="fa-solid fa-hand-holding-heart mx-4"></i></span></h1>
+                    <p>
+                        <ul>
+                            <li>Automated Attendance & Task Tracking – Keeps accurate records of employee attendance, assigned tasks, and approvals without manual effort.</li>
+
+                            <li>Data Integrity & Persistence – Employee and task data remain stored even after deletion, ensuring a reliable work history.</li>
+
+                            <li>Efficient Monthly Summaries – Generates detailed monthly reports on workdays, holidays, and task performance for better decision-making.</li>
+
+                            <li>Easy Data Export – Allows exporting reports to Excel, making analysis and documentation seamless.</li>
+
+                            <li>User-Friendly & Scalable – Designed for businesses of all sizes, ensuring smooth management of employees and their work activities.</li>
+                        </ul>
+                    </p>
+                </div>
+                <div class="right-side">
+                    <img class="svg_image" src="{% static 'whyUs.svg' %}"/>
+                </div>
+            </div>
+            <div class="bg-image-with-text">
+
+            </div>
+        </section>
+    </body>
+    <hr style="margin-top:100px;">
+    <footer>
+        <div class="text-logo">
+            <img class="logo footer-logo" src="{% static 'EmporiaLogo.png' %}" style="height:50px;">
+            <h3>Emporia</h3>
+            <p class="para">Make your Management easy and Boost productivity</p>
+        </div>
+        <div class="text-button">
+            <h3 class="mb-3">Your Assistant</h3>
+            <p class="para" style="width:80%; margin:auto;margin-bottom: 15px;">Emporia offers an efficient and automated solution for tracking attendance, managing tasks, and generating monthly summaries with accuracy. It saves time by organizing employee data, providing insightful reports, and ensuring scalability for growing teams. With a user-friendly interface and secure data handling, it enhances workforce productivity and reliability.</p>
+            <a href="{% url 'contact'%}" class="btn btn-warning">Contact Us</a>
+        </div>
+    </footer>
+</div>
+{% endblock  %}
+    

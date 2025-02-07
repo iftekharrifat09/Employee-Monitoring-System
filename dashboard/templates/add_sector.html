@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div class="container">
+    <form class="add_sector" method="post">
+        <h3>Add Sector</h3>
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div>
+            <button class="btn btn-success" type="submit">Add Sector</button>
+            <a class="btn btn-primary" href="{% url 'list_sectors' %}">View Sectors</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

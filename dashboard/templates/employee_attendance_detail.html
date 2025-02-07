@@ -1,0 +1,645 @@
+{% extends 'base.html' %} {% load crispy_forms_tags %} {% block content %}
+<style>
+  .assign-task {
+    width: 578px;
+    margin: auto;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.1);
+  }
+  .assign-task textarea {
+    height: 150px;
+  }
+  textarea:hover::-webkit-scrollbar-thumb {
+    opacity: 1; /* Fully visible on hover */
+    visibility: visible;
+  }
+  .task-progress:hover::-webkit-scrollbar-thumb {
+    opacity: 1; /* Fully visible on hover */
+    visibility: visible;
+  }
+  .task-progress {
+    height: 465px;
+    width: 720px;
+    margin: auto;
+    padding: 20px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-radius: 10px;
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+  }
+  .view-btn, .accept-btn, .reject-btn, .edit-btn, .extend-date-btn, .delete-btn {
+    position: relative;
+    display: inline-block;
+}
+
+/* Tooltip Styling */
+.view-btn:hover::after,
+.accept-btn:hover::after,
+.reject-btn:hover::after,
+.edit-btn:hover::after,
+.extend-date-btn:hover::after,
+.delete-btn:hover::after {
+    position: absolute;
+    background-color: black;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+/* Hide Tooltip Initially */
+.view-btn::after,
+.accept-btn::after,
+.reject-btn::after,
+.edit-btn::after,
+.extend-date-btn::after,
+.delete-btn::after {
+    visibility: hidden;
+    opacity: 0;
+}
+
+/* Individual Tooltip Text */
+.view-btn:hover::after {
+    content: "View task details";
+}
+
+.accept-btn:hover::after {
+    content: "Approve this task";
+}
+
+.reject-btn:hover::after {
+    content: "Reject this task";
+}
+
+.edit-btn:hover::after {
+    content: "Edit this task";
+}
+
+.extend-date-btn:hover::after {
+    content: "Extend task deadline";
+}
+
+.delete-btn:hover::after {
+    content: "Delete this task";
+}
+.heading_employee_details{
+  text-align: center;
+}
+</style>
+<div class="full-body">
+  <div class="heading_employee_details">
+    <h1 class="mb-4">
+      Progressing Details of
+      <strong style="color: tomato">{{ employee.user.username }}</strong>
+    </h1>
+    <a class="btn btn-primary" href="{% url 'dashboard' %}"
+      >Back to Dashboard</a
+    >
+  </div>
+  <div class="details-board">
+    <div class="left-side-details">
+      <div class="holiday-attend">
+        <div class="attendance-record-card" style="background-color: #ffe7ce">
+          <h4><i class="fa-solid fa-exclamation mx-2"></i>All Attendance</h4>
+          {% if attendance %}
+          <table style="width:100%;margin-left:5px;" class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>In</th>
+                <th>Out</th>
+              </tr>
+            </thead>
+            {% for record in attendance %}
+              <tbody>
+                <tr>
+                  <td>{{ record.date }}</td>
+                  <td>{{ record.time }}</td>
+                  <td>{{ record.quit_time }}</td>
+                </tr>
+              </tbody>
+              {% endfor %}
+            </table>
+          {% else %}
+          <p
+            style="
+              color: tomato;
+              font-weight: bold;
+              text-align: center;
+              font-size: 20px;
+            "
+          >
+            No attendance records found.
+          </p>
+          {% endif %}
+        </div>
+        <div class="default-holiday-card" style="background-color: #ffcfda; text-align:center;">
+          <h4><i class="fa-solid fa-mug-hot mx-2"></i>Default Holidays</h4>
+          <ol>
+            {% for holiday in default_holidays %}
+            <li>{{ holiday }}</li>
+            {% empty %}
+            <li>No default holidays for this month.</li>
+            {% endfor %}
+          </ol>
+        </div>
+      </div>
+      <!-- employee task -->
+      <div class="assign-task" style="background-color: #cfe8ff">
+        <h3 style="text-align: center" class="mt-1 mb-3"><i class="fa-solid fa-bars-progress mx-3"></i>Assign a Task</h3>
+        <form method="post">
+          {% csrf_token %} {{ task_form|crispy }}
+          <button type="submit" class="btn btn-primary">Add Task</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Attendance Summary -->
+    <div class="attendance-full-summary">
+      <div>
+        <div
+          class="attendance-table-container"
+          style="background-color: #ffc9c9"
+        >
+          <div class="mx-auto">
+            <h3 class="text-center mb-4 mt-3"><i class="fa-solid fa-calendar-check mx-3"></i>Month Summary</h3>
+            <ul class="list-group">
+              <li
+                class="list-group-item d-flex justify-content-between align-items-center"
+              >
+                <strong>Present Days:</strong>
+                <span>{{ present_count }}</span>
+              </li>
+              <li
+                class="list-group-item d-flex justify-content-between align-items-center"
+              >
+                <strong>Absent Days:</strong>
+                <span>{{ absent_count }}</span>
+              </li>
+              <li
+                class="list-group-item d-flex justify-content-between align-items-center"
+              >
+                <strong>Default Holidays:</strong>
+                <span>{{ default_holiday_count }}</span>
+              </li>
+              <li
+                class="list-group-item d-flex justify-content-between align-items-center"
+              >
+                <strong
+                  >My Extra Holidays<span style="color: orange"> (Mixed)</span
+                  >:</strong
+                >
+                <span>{{ extra_holiday_count }}</span>
+              </li>
+              <li
+                class="list-group-item d-flex justify-content-between align-items-center"
+              >
+                <strong
+                  >Occasional Holidays<span style="color: orange"> (Mixed)</span
+                  >:</strong
+                >
+                <span>{{ occasional_holiday_count }}</span>
+              </li>
+              <li
+                class="list-group-item d-flex justify-content-between align-items-center"
+              >
+                <strong
+                  >Total Holidays<span style="color: green"> (Unique Days)</span
+                  >:</strong
+                >
+                <span>{{ total_holidays }}</span>
+              </li>
+              <li
+                class="list-group-item d-flex justify-content-between align-items-center"
+              >
+                <strong>Total Workdays:</strong>
+                <span>{{ total_days }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- extra holiday -->
+        <div class="extra-holiday" style="background-color: #d6ddff">
+          <h4 class="mb-4" style="text-align: center; margin-top: 10px">
+            <i class="fa-solid fa-champagne-glasses mx-3"></i>Extra Holidays
+          </h4>
+          {% if extra_holidays %}
+          <table class="table table-striped" style="width:100%;">
+            <thead>
+              <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for holiday in extra_holidays %}
+              <tr>
+                <td>{{ holiday }}</td>
+                <td>
+                  <form
+                    method="POST"
+                    action="{% url 'delete_extra_holiday_by_date' employee.id holiday %}"
+                  >
+                    {% csrf_token %}
+                    <button class="btn btn-danger" type="submit">Remove</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <p
+            style="
+              color: tomato;
+              font-weight: bold;
+              text-align: center;
+              font-size: 20px;
+            "
+          >
+            No extra holidays for this employee.
+          </p>
+          {% endif %}
+        </div>
+      </div>
+      <div>
+        <div class="all-circle-container_admin" style="background-color: #ffffff">
+          <h3 class="text-center mb-4 mt-3"><i class="fa-solid fa-chart-line mx-3"></i>Employee Activity</h3>
+          <div class="circle-charts mx-auto">
+            <!-- Present Circle -->
+            <div class="circle-chart-container">
+              <div
+                class="circle-chart"
+                style="background: conic-gradient(
+            rgb(61, 255, 106) {{ present_percentage }}%, 
+                                #e9ecef {{ present_percentage }}% 100%
+                            );"
+              >
+                <div class="circle-chart-center">
+                  <span>{{ present_percentage|floatformat:1 }}%</span>
+                </div>
+              </div>
+              <p class="circle-label">Present</p>
+            </div>
+
+            <!-- Absent Circle -->
+            <div class="circle-chart-container">
+              <div
+                class="circle-chart"
+                style="background: conic-gradient(
+            rgb(247, 31, 53) {{ absent_percentage }}%, 
+                                #e9ecef {{ absent_percentage }}% 100%
+                            );"
+              >
+                <div class="circle-chart-center">
+                  <span>{{ absent_percentage|floatformat:1 }}%</span>
+                </div>
+              </div>
+              <p class="circle-label">Absent</p>
+            </div>
+
+            <!-- Holiday Circle -->
+            <div class="circle-chart-container">
+              <div
+                class="circle-chart"
+                style="background: conic-gradient(
+            rgb(255, 153, 0) {{ holidays_percentage }}%, 
+                                #e9ecef {{ holidays_percentage }}% 100%
+                            );"
+              >
+                <div class="circle-chart-center">
+                  <span>{{ holidays_percentage|floatformat:1 }}%</span>
+                </div>
+              </div>
+              <p class="circle-label">Holidays</p>
+            </div>
+
+            <!-- Workdays Circle -->
+            <div class="circle-chart-container">
+              <div
+                class="circle-chart"
+                style="background: conic-gradient(
+            rgb(76, 0, 255) {{ workday_percentage }}%, 
+                                #e9ecef {{ workday_percentage }}% 100%
+                            );"
+              >
+                <div class="circle-chart-center">
+                  <span>{{ workday_percentage|floatformat:1 }}%</span>
+                </div>
+              </div>
+              <p class="circle-label">Workdays</p>
+            </div>
+          </div>
+          <p class="text-center" style="color: green; font-weight: bold">
+            Calculate according to the 'Total Workdays'
+          </p>
+        </div>
+        <div class="task-progress" style="background-color: #f5f5f5">
+          <h3 style="margin-top: 20px; margin-bottom: 20px; text-align: center">
+            <i class="fa-solid fa-list-check mx-3"></i>All Task
+          </h3>
+
+          {% if tasks %}
+          <table class="table" style="width: 100%">
+            <thead>
+              <tr>
+                <th>ID-Title</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for task in tasks %}
+              <tr>
+                <td><span style="font-weight:bold;color:goldenrod">{{task.id}}- </span>{{ task.title|truncatechars:7 }}</td>
+                <td>{{ task.start_date }}</td>
+                <td>{{ task.end_date }}</td>
+                <td>
+                  {% if task.status == "Date Over" %}
+                  <span class="text-white" style="font-weight: bold; background-color:red;padding: 5px;border-radius:5px;"
+                    >{{ task.status }}</span
+                  >
+                  {% elif task.status == "Completed" %}
+                  <span class="text-white" style="font-weight: bold; background-color:green;padding: 5px;border-radius:5px;"
+                    >{{ task.status }}</span
+                  >
+                  {% elif task.status == "In Process" %}
+                  <span class="text-white" style="font-weight: bold; background-color:blue;padding: 5px;border-radius:5px;"
+                    >{{ task.status }}</span
+                  >
+                  {% elif task.status == "Pending Approval" %}
+                  <span class="text-white" style="font-weight: bold; background-color:orange;padding: 5px;border-radius:5px;"
+                    >{{ task.status }}</span
+                  >
+                  {% else %}
+                  <span class="text-white" style="font-weight: bold; background-color:tomato;padding: 5px;border-radius:5px;"
+                    >{{ task.status }}</span
+                  >
+                  {% endif %}
+                </td>
+                <td>
+                  <button
+                    href=""
+                    type="button"
+                    class="btn btn-primary btn-sm view-btn"
+                    data-bs-toggle="modal"
+                    data-bs-target="#task-viewModal-{{task.id}}"
+                  >
+                  <i class="fa-regular fa-eye"></i>
+                  </button>
+                  
+                  {% if not task.is_completed %}
+                  <a
+                    href="{% url 'edit_task' task.id %}"
+                    class="btn btn-warning btn-sm edit-btn"
+                    ><i class="fa-regular fa-pen-to-square"></i></a
+                  >
+                  {% endif %}
+                    
+                  <button
+                    href=""
+                    type="button"
+                    class="btn btn-danger btn-sm delete-btn"
+                    data-bs-toggle="modal"
+                    data-bs-target="#task-deleteModal-{{task.id}}"
+                  >
+                  <i class="fa-regular fa-trash-can"></i>
+                  </button>
+                  <!--new actions-->
+                  {% if task.is_delivered %}
+                    <button
+                      href=""
+                      type="button"
+                      class="btn btn-success btn-sm accept-btn"
+                      data-bs-toggle="modal"
+                      data-bs-target="#task-acceptModal-{{task.id}}"
+                    >
+                    <i class="fa-solid fa-check-double"></i>
+                    </button>
+                    <button
+                      href=""
+                      type="button"
+                      class="btn btn-sm reject-btn"
+                      data-bs-toggle="modal"
+                      data-bs-target="#task-rejectModal-{{task.id}}"
+                      style="background-color:#ff6a00;color:white;"
+                    >
+                    <i class="fa-solid fa-xmark"></i>
+                    </button>
+                  {% elif task.end_date < today and not task.extended_date %}
+                    <a
+                      href="{% url 'extend_task_date' task.id %}"
+                      class="btn btn-sm extend-date-btn"
+                      style="background-color:#2dc7c0;color:black;color:white;"><i class="fa-solid fa-arrow-up-9-1"></i></a
+                    >
+                  {% endif %}
+                  <!--Task Accept Modal-->
+                  <div
+                    class="modal fade"
+                    id="task-acceptModal-{{task.id}}"
+                    tabindex="-1"
+                    aria-labelledby="task-accept-{{task.id}}-ModalLabel"
+                    aria-hidden="true"
+                  >
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h3
+                            class="modal-title"
+                            id="task-accept-{{task.id}}-ModalLabel"
+                            style="color:red;"
+                          >
+                            Warning !!!
+                          </h3>
+                          <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                          ></button>
+                        </div>
+                        <div class="modal-body">
+                          <h4 style="color:green;text-align:center;"><span style="font-weight:bold; color:goldenrod">ID: {{task.id}} </span> Are you sure to Accpect this Task?</h4>
+                        </div>
+                        <div class="modal-footer">
+                          <a href="{% url 'approve_task' task.id %}"
+                          class="btn btn-success"
+                          >Confirm</a>
+                          <button
+                            type="button"
+                            class="btn btn-primary"
+                            data-bs-dismiss="modal"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!--Task Reject Modal-->
+                  <div
+                    class="modal fade"
+                    id="task-rejectModal-{{task.id}}"
+                    tabindex="-1"
+                    aria-labelledby="task-reject-{{task.id}}-ModalLabel"
+                    aria-hidden="true"
+                  >
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h3
+                            class="modal-title"
+                            id="task-reject-{{task.id}}-ModalLabel"
+                            style="color:red;"
+                          >
+                            Warning !!!
+                          </h3>
+                          <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                          ></button>
+                        </div>
+                        <div class="modal-body">
+                          <h4 style="color:red;text-align:center;"><span style="font-weight:bold; color:goldenrod">ID: {{task.id}} </span>Are you sure about to Reject this task?</h4>
+                        </div>
+                        <div class="modal-footer">
+                          <a href="{% url 'reject_task' task.id %}" class="btn" style="background-color:#ff6a00;color:white;">Confirm</a>
+                          <button
+                            type="button"
+                            class="btn btn-success"
+                            data-bs-dismiss="modal"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!--Task View Modal-->
+                  <div
+                    class="modal fade"
+                    id="task-viewModal-{{task.id}}"
+                    tabindex="-1"
+                    aria-labelledby="task-view-{{task.id}}-ModalLabel"
+                    aria-hidden="true"
+                  >
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h3
+                            class="modal-title"
+                            id="task-view-{{task.id}}-ModalLabel"
+                          >
+                            Task Details
+                          </h3>
+                          <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                          ></button>
+                        </div>
+                        <div class="modal-body">
+                          <h5>Task Title: {{task.title}}</h5>
+                          <h6>Task Description:</h6>
+                          <p style="font-size: 18px">{{task.description}}</p>
+                          <p>{{task.is_visible_to_employee}}</p>
+                        </div>
+                        <div class="modal-footer">
+                          <button
+                            type="button"
+                            class="btn btn-success"
+                            data-bs-dismiss="modal"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!--task delete confirmation-->
+                  <div
+                    class="modal fade"
+                    id="task-deleteModal-{{task.id}}"
+                    tabindex="-1"
+                    aria-labelledby="task-delete-{{task.id}}-ModalLabel"
+                    aria-hidden="true"
+                  >
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h3
+                            class="modal-title"
+                            id="task-delete-{{task.id}}-ModalLabel"
+                          >
+                            Alert!!!
+                          </h3>
+                          <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                          ></button>
+                        </div>
+                        <div class="modal-body">
+                          <h4 style="color: red">
+                            Are you sure you want to delete this task?
+                          </h4>
+                        </div>
+
+                        <div class="modal-footer">
+                          <a
+                            href="{% url 'delete_task' task.id %}"
+                            class="btn btn-danger"
+                            >Confirm</a
+                          >
+
+                          <button
+                            type="button"
+                            class="btn btn-success"
+                            data-bs-dismiss="modal"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <p
+            style="
+              color: tomato;
+              font-weight: bold;
+              text-align: center;
+              font-size: 20px;
+            "
+          >
+            No tasks assigned yet.
+          </p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="width: 95%;margin:auto;">
+    <div class="msg-header" style="text-align:center;margin-bottom:40px;margin-top:20px;">
+        <h2>All Employee Activity Summary</h2>
+        <a class="btn btn-success mt-3" href="{% url 'dashboard' %}" >Back to Dashboard</a>
+        <a href="{% url 'attendance_summary' %}?export=true" class="btn mt-3 mx-3" style="background-color:tomato;color:white">Download<i class="fa-solid fa-file-arrow-down mx-2"></i></a>
+    </div>
+    <table class="table table-striped table-hover" style="width: 95%;margin:auto;">
+        <thead>
+            <tr>
+                <th>User name</th>
+                <th>Total Workdays</th>
+                <th>Present Days</th>
+                <th>Absent Days</th>
+                <th>Default Holidays</th>
+                <th>Occasional Holidays</th>
+                <th>Extra Holidays</th>
+                <th>Total Holidays</th>
+                <th>Total Tasks</th>
+                <th>Completed Tasks</th>
+                <th>Pending Tasks</th>
+                <th>In Process Tasks</th>
+                <th>In Revision Tasks</th>
+                <th>Tasks Overdue</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for summary in attendance_summary %}
+            <tr>
+                <td>{{ summary.employee_name }}</td>
+                <td>{{ summary.total_workdays }}</td>
+                <td>{{ summary.present }}</td>
+                <td>{{ summary.absent }}</td>
+                <td>{{ summary.default_holidays }}</td>
+                <td>{{ summary.occasional_holidays }}</td>
+                <td>{{ summary.extra_holidays }}</td>
+                <td>{{ summary.total_holidays }}</td>
+                <td>{{ summary.total_tasks }}</td>
+                <td>{{ summary.completed_tasks }}</td>
+                <td>{{ summary.pending_tasks }}</td>
+                <td>{{ summary.in_process_tasks }}</td>
+                <td>{{ summary.in_revision_tasks }}</td>
+                <td>{{ summary.date_over_tasks }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div class="extend-task mt-5">
+    <form method="post">
+        <h2  style="text-align:center;margin-bottom:20px;">Extend Task Deadline<i class="fa-solid fa-arrow-up-wide-short mx-2"></i></h2>
+        {% csrf_token %}
+        <label for="new_end_date">New End Date:</label>
+        <input type="date" name="new_end_date" class="form-control" required>
+        <button type="submit" class="btn btn-warning mt-3">Extend Deadline</button>
+        <a href="{% url 'view_all_tasks' %}" class="btn btn-primary mt-3">Cancel</a>
+    </form>
+</div>
+{% endblock %}

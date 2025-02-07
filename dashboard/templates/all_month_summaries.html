@@ -1,0 +1,243 @@
+{% extends 'base.html' %} {% block content %}
+<div style="width: 95%; margin: auto">
+  <div
+    class="msg-header"
+    style="text-align: center; margin-bottom: 40px; margin-top: 20px"
+  >
+    <h2>
+      Month Summaries for
+      <span style="color: goldenrod; font-weight: bold"
+        >{{ month }} {{ year }}</span
+      >
+    </h2>
+    <a class="btn btn-success mt-3" href="{% url 'dashboard' %}"
+      >Back to Dashboard</a
+    >
+    <a
+      href="{% url 'export_month_summary' %}"
+      class="btn mt-3 mx-3"
+      style="background-color: tomato; color: white"
+      >Download<i class="fa-solid fa-file-arrow-down mx-2"></i
+    ></a>
+  </div>
+  {% if month_summaries %}
+  <table
+    class="table table-striped table-hover"
+    style="width: 95%; margin: auto"
+  >
+    <thead>
+      <tr>
+        <th>Employee Name</th>
+        <th>Joining Date</th>
+        <th>Total Workdays</th>
+        <th>Total Present Days</th>
+        <th>Total Absent Days</th>
+        <th>Total Holidays Taken</th>
+        <th>Total Occasional Holidays</th>
+        <th>Total Tasks Assigned</th>
+        <th>All Assigned Tasks</th>
+        <th>Total Tasks Completed</th>
+        <th>Completed Tasks</th>
+        <th>Employee Status</th>
+        <th>Resigning Date</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for summary in month_summaries %}
+      <tr>
+        <td>{{ summary.employee_name }}</td>
+        <td>{{ summary.joining_date.date }}</td>
+        <td>{{ summary.total_workdays }}</td>
+        <td>{{ summary.total_present_days }}</td>
+        <td>{{ summary.total_absent_days }}</td>
+        <td>{{ summary.total_holidays_taken }}</td>
+        <td>{{ summary.total_occasional_holidays }}</td>
+        <td>{{ summary.total_task_assigned }}</td>
+        <td>
+          <button
+            href=""
+            type="button"
+            class="btn btn-primary btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#assignTaskModal-{{summary.id}}"
+          >
+            View
+          </button>
+          <!--Assign task details Modal-->
+          <div
+            class="modal fade"
+            id="assignTaskModal-{{summary.id}}"
+            tabindex="-1"
+            aria-labelledby="assignTask-{{summary.id}}-ModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h3
+                    class="modal-title"
+                    id="assignTask-{{summary.id}}-ModalLabel"
+                    style="color: goldenrod"
+                  >
+                    Details !
+                  </h3>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div class="modal-body">
+                  {% if summary.assigned_task_list %}
+                  <ol>
+                    {% for task in summary.assigned_task_list %}
+                    <li>{{ task }}</li>
+                    {% endfor %}
+                  </ol>
+                  {% else %} No assigned tasks {% endif %}
+                </div>
+                <div class="modal-footer">
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-bs-dismiss="modal"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td>{{ summary.total_task_completed }}</td>
+        <td>
+          <button
+            href=""
+            type="button"
+            class="btn btn-success btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#completeTaskModal-{{summary.id}}"
+          >
+            View
+          </button>
+          <!--Completed task details Modal-->
+          <div
+            class="modal fade"
+            id="completeTaskModal-{{summary.id}}"
+            tabindex="-1"
+            aria-labelledby="completeTask-{{summary.id}}-ModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h3
+                    class="modal-title"
+                    id="completeTask-{{summary.id}}-ModalLabel"
+                    style="color: goldenrod"
+                  >
+                    Details !
+                  </h3>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div class="modal-body">
+                  {% if summary.completed_task_list %}
+                  <ul>
+                    {% for task in summary.completed_task_list %}
+                    <li>{{ task }}</li>
+                    {% endfor %}
+                  </ul>
+                  {% else %} No completed tasks {% endif %}
+                </div>
+                <div class="modal-footer">
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-bs-dismiss="modal"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td>{% if summary.employee_present_status == 'Running' %}
+                <span style="color: green; font-weight: bold;">{{ summary.employee_present_status }}</span>
+            {% else %}
+                <span style="color: red; font-weight: bold;">{{ summary.employee_present_status }}</span>
+            {% endif %}
+        </td>
+        <td>{{summary.leaving_date.date}}</td>
+        <td>
+          <button
+            href=""
+            type="button"
+            class="btn btn-danger btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#deleteTaskModal-{{summary.id}}"
+          >
+            Delete
+          </button>
+          <!--delete task details Modal-->
+          <div
+            class="modal fade"
+            id="deleteTaskModal-{{summary.id}}"
+            tabindex="-1"
+            aria-labelledby="deleteTask-{{summary.id}}-ModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h3
+                    class="modal-title"
+                    id="deleteTask-{{summary.id}}-ModalLabel"
+                    style="color: red"
+                  >
+                    Warning !
+                  </h3>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div class="modal-body">
+                  <h5 style="text-align:center; color:tomato;">Are you Sure to delete this History</h5>
+                </div>
+                <div class="modal-footer">
+                  <a
+                    href="{% url 'delete_month_summary' summary.id %}"
+                    class="btn btn-danger"
+                    >Confirm</a
+                  >
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-bs-dismiss="modal"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <h4 style="color:tomato; text-align:center;">No Month Summaries found for the current month.</h4>
+  {% endif %}
+</div>
+{% endblock %}

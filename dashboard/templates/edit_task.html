@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container mt-4 edit-task">
+    <h2>Edit Task</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-warning">Update Task</button>
+        <a href="{% url 'view_all_tasks'%}" class="btn btn-primary">Back</a>
+
+    </form>
+</div>
+
+{% endblock %}
+    

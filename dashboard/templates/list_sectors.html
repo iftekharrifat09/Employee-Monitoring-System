@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container sector_list">
+    <h3>Sectors List</h3>
+    <table class="table" style="width:100%">
+        <thead>
+            <tr>
+                <th>Sector</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for sector in sectors %}
+            <tr>
+                <td>{{ sector.sector }}</td>  
+                <form action="{% url 'delete_sector' sector.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <!--onclick="return confirm('Are you sure you want to delete this sector?')"-->
+                    <td><button class="btn btn-danger" type="submit" >Delete</button></td>
+                </form>
+            </tr>
+        {% empty %}
+            <li>No sectors available.</li>
+        {% endfor %}
+        </tbody>
+    </table>
+    <a class="btn btn-primary" href="{% url 'add_sector' %}">Add New Sector</a>
+</div>
+{% endblock %}

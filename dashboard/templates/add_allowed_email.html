@@ -1,0 +1,9 @@
+{% extends 'base.html' %} {% load crispy_forms_tags %} {% block content %}
+<h3 class="text-center mt-4 mb-4"><i class="fa-solid fa-user-plus mx-2"></i>Add Allowed Email</h3>
+    <form class="add-email" method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button class="btn btn-warning" type="submit">Add Email</button>
+        <a class="btn btn-primary" href="{% url 'dashboard' %}">Back</a>
+    </form>
+{% endblock %}

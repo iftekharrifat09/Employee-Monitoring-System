@@ -1,0 +1,267 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .message-box{
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.2);
+        overflow-x: hidden;
+        overflow-y: auto;
+ 
+    }
+    .table{
+        width: 100%;
+    }
+    .message-box h2{
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    .message-box:hover::-webkit-scrollbar-thumb {
+        opacity: 1; /* Fully visible on hover */
+        visibility: visible;
+    }
+    .msg-header{
+        text-align: center;
+        margin-bottom: 30px;
+    }
+</style>
+<div class="container mt-4">
+    <div class="msg-header">
+        <h2>All Employee Task</h2>
+        <a class="btn btn-success mt-2" href="{% url 'dashboard' %}" >Back to Dashboard</a>
+    </div>
+    
+    {% if tasks %}    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>ID-Title</th>
+                <th>Description</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.employee.user.username }}</td>
+                <td><span style="font-weight:bold;color:goldenrod">{{task.id}}- </span>{{ task.title|truncatechars:20 }}</td>
+                <td>{{ task.description|truncatechars:30 }}</td>
+                <td>{{ task.start_date }}</td>
+                <td>{{ task.end_date }}</td>
+                <td style="margin-top:4px;">
+                  {% if task.status == "Date Over" %}
+                  <span class="text-white" style="font-weight: bold; background-color:red;padding: 5px;border-radius:5px;"
+                    >{{ task.status }}</span     
+                  >
+                  {% elif task.status == "Completed" and not task.revision_count %}
+                  <span class="text-white" style="font-weight: bold; background-color:green;padding: 5px;border-radius:5px;"
+                    >{{ task.status }}</span
+                  >
+                  {% elif task.status == "Completed" and task.revision_count %}
+                  <span class="text-white" style="font-weight: bold; background-color:green;padding: 5px;border-radius:5px;"
+                    >{{ task.status }}</span
+                  >
+                  <span class="text-white" style="font-weight: bold; background-color:orange;padding: 5px;border-radius:5px;"
+                    >Rivision ({{ task.revision_count }})</span
+                  >
+                  {% elif task.status == "In Process" %}
+                  <span class="text-white" style="font-weight: bold; background-color:blue;padding: 5px;border-radius:5px;"
+                    >{{ task.status }}</span
+                  >
+                  {% elif task.status == "Pending Approval" %}
+                  <span class="text-white" style="font-weight: bold; background-color:orange;padding: 5px;border-radius:5px;"
+                    >{{ task.status }}</span
+                  >
+                  {% else %}
+                  <span class="text-white" style="font-weight: bold; background-color:goldenrod;padding: 5px;border-radius:5px;"
+                    >{{ task.status }}</span
+                  >
+                  {% endif %}
+                  {% if task.rejected_count %}
+                     <span class="text-white" style="font-weight: bold; background-color:red;padding: 5px;border-radius:5px;">Rejection ({{ task.rejected_count }})</span>
+                  {% endif %}
+                </td>
+                <td>
+                    <button href="" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#task-viewModal-{{task.id}}">
+                        View
+                    </button>
+                    {% if not task.is_completed %}
+                            <a
+                                href="{% url 'edit_task' task.id %}"
+                                class="btn btn-warning btn-sm"
+                                >Edit</a
+                            >
+                    {% endif %}
+                    <button href="" type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#task-deleteModal-{{task.id}}">
+                        Delete
+                    </button>
+                    {% if task.is_delivered %}
+                        <button
+                            href=""
+                            type="button"
+                            class="btn btn-success btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#task-acceptModal-{{task.id}}"
+                        >
+                            Accept
+                        </button>
+                        <button
+                            href=""
+                            type="button"
+                            class="btn btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#task-rejectModal-{{task.id}}"
+                            style="background-color:#ff6a00;color:white;"
+                        >
+                            Reject
+                        </button>
+                    {% elif task.end_date < today and not task.extended_date %}
+                        <a
+                        href="{% url 'extend_task_date' task.id %}"
+                        class="btn btn-sm"
+                        style="background-color:#2dc7c0;color:black;color:white;">Extend Date</a
+                        >
+                    {% endif %}
+                    <!--Task Accept Modal-->
+                    <div
+                        class="modal fade"
+                        id="task-acceptModal-{{task.id}}"
+                        tabindex="-1"
+                        aria-labelledby="task-accept-{{task.id}}-ModalLabel"
+                        aria-hidden="true"
+                        >
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h3
+                                class="modal-title"
+                                id="task-accept-{{task.id}}-ModalLabel"
+                                style="color:red;"
+                                >
+                                Warning !!!
+                                </h3>
+                                <button
+                                type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"
+                                ></button>
+                            </div>
+                            <div class="modal-body">
+                                <h4 style="color:green;text-align:center;"><span style="font-weight:bold; color:goldenrod">ID: {{task.id}} </span> Are you sure to Accpect this Task?</h4>
+                            </div>
+                            <div class="modal-footer">
+                                <a href="{% url 'approve_task' task.id %}"
+                                class="btn btn-success"
+                                >Confirm</a>
+                                <button
+                                type="button"
+                                class="btn btn-primary"
+                                data-bs-dismiss="modal"
+                                >
+                                Close
+                                </button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Task Reject Modal-->
+                    <div
+                            class="modal fade"
+                            id="task-rejectModal-{{task.id}}"
+                            tabindex="-1"
+                            aria-labelledby="task-reject-{{task.id}}-ModalLabel"
+                            aria-hidden="true"
+                            >
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h3
+                                class="modal-title"
+                                id="task-reject-{{task.id}}-ModalLabel"
+                                style="color:red;"
+                                >
+                                Warning !!!
+                                </h3>
+                                <button
+                                type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"
+                                ></button>
+                            </div>
+                            <div class="modal-body">
+                                <h4 style="color:red;text-align:center;"><span style="font-weight:bold; color:goldenrod">ID: {{task.id}} </span>Are you sure about to Reject this task?</h4>
+                            </div>
+                            <div class="modal-footer">
+                                <a href="{% url 'reject_task' task.id %}" class="btn" style="background-color:#ff6a00;color:white;">Confirm</a>
+                                <button
+                                type="button"
+                                class="btn btn-success"
+                                data-bs-dismiss="modal"
+                                >
+                                Close
+                                </button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Task View Modal-->
+                    <div class="modal fade" id="task-viewModal-{{task.id}}" tabindex="-1" aria-labelledby="task-view-{{task.id}}-ModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content" style="width:700px !important;">
+                                <div class="modal-header">
+                                    <h3 class="modal-title" id="task-view-{{task.id}}-ModalLabel">Task Details</h3>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body" style="width:700px !important;">
+                                    <h5>Task Title: {{task.title}}</h5>  
+                                    <h6>Task Description: </h6>
+                                    <p style="font-size:18px;">{{task.description}}</p>   
+                                    <p>{{task.is_visible_to_employee}}</p>                       
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--task delete confirmation-->
+                    <div class="modal fade" id="task-deleteModal-{{task.id}}" tabindex="-1" aria-labelledby="task-delete-{{task.id}}-ModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h3 class="modal-title" id="task-delete-{{task.id}}-ModalLabel">Alert!!!</h3>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body" >
+                                    <h4 style="color:red;">
+                                        Are you sure you want to delete this task?
+                                    </h4>                      
+                                </div>
+
+                                <div class="modal-footer">
+                                    <a href="{% url 'delete_task' task.id %}"
+                                    class="btn btn-danger ">Confirm</a>
+
+                                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <h4 style="text-align:center; color:tomato;margin-top:30px;">No tasks found.</h4>
+    {% endif %}
+</div>
+{% endblock %}
